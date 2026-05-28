@@ -782,6 +782,173 @@
       line-height: 1.42;
     }
 
+    .recommendation-layout {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-content: stretch;
+    }
+
+    .roadmap-stage {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px;
+      min-height: 425px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-top: 8px solid var(--blue);
+    }
+
+    .roadmap-stage:nth-child(2) { border-top-color: var(--teal); }
+    .roadmap-stage:nth-child(3) { border-top-color: var(--amber); }
+    .roadmap-stage:nth-child(4) { border-top-color: var(--green); }
+
+    .roadmap-stage .period {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .roadmap-stage p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.36;
+    }
+
+    .stage-output {
+      align-self: end;
+      padding: 10px 12px;
+      color: var(--navy);
+      background: #edf8fc;
+      border-left: 5px solid var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .recommendation-stack {
+      display: grid;
+      gap: 14px;
+      align-content: stretch;
+    }
+
+    .rec-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 18px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .rec-card strong {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      color: #fff;
+      background: var(--navy);
+      font-size: 19px;
+    }
+
+    .rec-card h3 {
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .rec-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.36;
+    }
+
+    .decision-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      height: 100%;
+    }
+
+    .decision-board {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .decision-band {
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 22px;
+      color: #fff;
+      background: var(--navy);
+    }
+
+    .decision-band:nth-child(2) {
+      background: var(--blue);
+    }
+
+    .decision-band:nth-child(3) {
+      background: #4d7c92;
+    }
+
+    .decision-band b {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .decision-band span {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .gate-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      align-content: stretch;
+    }
+
+    .gate {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      min-height: 125px;
+      padding: 17px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-left: 7px solid var(--blue);
+    }
+
+    .gate:nth-child(2) { border-left-color: var(--teal); }
+    .gate:nth-child(3) { border-left-color: var(--amber); }
+    .gate:nth-child(4) { border-left-color: var(--green); }
+    .gate:nth-child(5) { border-left-color: #8a6fb2; }
+    .gate:nth-child(6) { border-left-color: var(--coral); }
+
+    .gate h3 {
+      font-size: 17px;
+    }
+
+    .gate p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.34;
+    }
+
     .nav {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -864,19 +1031,24 @@
       .architecture,
       .taxonomy,
       .value-grid,
-      .pitfalls {
+      .pitfalls,
+      .recommendation-layout,
+      .decision-layout {
         grid-template-columns: 1fr;
       }
 
       .grid-3,
       .controls,
       .scqa,
-      .factory {
+      .factory,
+      .roadmap,
+      .gate-grid {
         grid-template-columns: 1fr;
       }
 
       .scqa .box,
-      .step {
+      .step,
+      .roadmap-stage {
         min-height: auto;
       }
 
@@ -969,7 +1141,7 @@
             <p class="kicker">Akana to Apigee X Migration Strategy</p>
             <h1>Migrate by business-use product, not by API inventory.</h1>
           </div>
-          <div class="slide-number">01 / 08</div>
+          <div class="slide-number">01 / 10</div>
         </header>
         <div class="body answer">
           <div class="answer-card">
@@ -1008,7 +1180,7 @@
             <p class="kicker">Strict Minto Pyramid + SQCA</p>
             <h2>The storyline: fix the operating model first, then migrate traffic safely.</h2>
           </div>
-          <div class="slide-number">02 / 08</div>
+          <div class="slide-number">02 / 10</div>
         </header>
         <div class="body grid-2">
           <div class="pyramid" aria-label="Minto pyramid">
@@ -1064,7 +1236,7 @@
             <p class="kicker">Target-State Architecture</p>
             <h2>Apigee X becomes the governed API front door on GCP; Akana remains only for controlled coexistence.</h2>
           </div>
-          <div class="slide-number">03 / 08</div>
+          <div class="slide-number">03 / 10</div>
         </header>
         <div class="body architecture">
           <div class="lane">
@@ -1103,7 +1275,7 @@
             <p class="kicker">Implementation Approach</p>
             <h2>Run a repeatable migration factory for each Apigee Product.</h2>
           </div>
-          <div class="slide-number">04 / 08</div>
+          <div class="slide-number">04 / 10</div>
         </header>
         <div class="body">
           <div class="factory">
@@ -1157,7 +1329,7 @@
             <p class="kicker">Product Taxonomy + Onboarding</p>
             <h2>Replace technical grouping with business usage grouping.</h2>
           </div>
-          <div class="slide-number">05 / 08</div>
+          <div class="slide-number">05 / 10</div>
         </header>
         <div class="body taxonomy">
           <div class="layered">
@@ -1231,7 +1403,7 @@
             <p class="kicker">Foundation Controls</p>
             <h2>Build six non-negotiable controls before scaling beyond the first product.</h2>
           </div>
-          <div class="slide-number">06 / 08</div>
+          <div class="slide-number">06 / 10</div>
         </header>
         <div class="body controls">
           <div class="control-card">
@@ -1277,7 +1449,7 @@
             <p class="kicker">Data Visualization</p>
             <h2>Track migration success by outcomes, not proxy count.</h2>
           </div>
-          <div class="slide-number">07 / 08</div>
+          <div class="slide-number">07 / 10</div>
         </header>
         <div class="body value-grid">
           <div class="impact-bars">
@@ -1337,7 +1509,7 @@
             <p class="kicker">Challenges, Pitfalls, and Prevention</p>
             <h2>Most migration failures come from unmanaged coupling, not Apigee technology.</h2>
           </div>
-          <div class="slide-number">08 / 08</div>
+          <div class="slide-number">08 / 10</div>
         </header>
         <div class="body pitfalls">
           <div class="pitfall-table">
@@ -1376,6 +1548,134 @@
         </div>
         <footer class="footer">
           <span><b>Last recommendation:</b> protect product taxonomy, automation, identity, and retirement discipline from day one</span>
+          <span>Pitfalls playbook</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Execution Recommendations">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">How To Execute</p>
+            <h2>Start with a platform runway, then migrate products in evidence-based waves.</h2>
+          </div>
+          <div class="slide-number">09 / 10</div>
+        </header>
+        <div class="body recommendation-layout">
+          <div class="roadmap" aria-label="Recommended implementation roadmap">
+            <div class="roadmap-stage">
+              <span class="period">Weeks 0-4</span>
+              <h3>Build the runway</h3>
+              <p>Set up Apigee X environments, shared VPC routing, external load balancer path, CI/CD skeleton, Ping validation pattern, certificate model, and policy catalog.</p>
+              <div class="stage-output">Output: deployable platform baseline</div>
+            </div>
+            <div class="roadmap-stage">
+              <span class="period">Weeks 4-8</span>
+              <h3>Prove Product 1</h3>
+              <p>Select a bounded product with real consumers. Complete discovery, design, build, test, portal onboarding, controlled cutover, and Akana retirement.</p>
+              <div class="stage-output">Output: first reusable migration pattern</div>
+            </div>
+            <div class="roadmap-stage">
+              <span class="period">Weeks 8-16</span>
+              <h3>Industrialize waves</h3>
+              <p>Run two or three additional products through the factory, tighten templates, remove exceptions, and prove repeatability across different consumer types.</p>
+              <div class="stage-output">Output: product migration playbook</div>
+            </div>
+            <div class="roadmap-stage">
+              <span class="period">Beyond 16</span>
+              <h3>Scale and retire</h3>
+              <p>Prioritize the remaining portfolio by business value, risk, dependency complexity, Akana cost, and consumer readiness. Retire Akana routes as a managed KPI.</p>
+              <div class="stage-output">Output: governed migration portfolio</div>
+            </div>
+          </div>
+          <div class="recommendation-stack">
+            <div class="rec-card">
+              <strong>01</strong>
+              <div>
+                <h3>Choose the first product carefully</h3>
+                <p>Pick a product that is visible enough to prove value but bounded enough to avoid making the first wave a rescue mission.</p>
+              </div>
+            </div>
+            <div class="rec-card">
+              <strong>02</strong>
+              <div>
+                <h3>Make patterns reusable before speed</h3>
+                <p>Every shortcut in Product 1 becomes inherited debt. Prioritize templates for auth, errors, logging, certs, deployment, and portal onboarding.</p>
+              </div>
+            </div>
+            <div class="rec-card">
+              <strong>03</strong>
+              <div>
+                <h3>Keep coexistence visibly temporary</h3>
+                <p>The load balancer should route by migration state, not become a permanent abstraction that hides Akana dependency.</p>
+              </div>
+            </div>
+            <div class="rec-card">
+              <strong>04</strong>
+              <div>
+                <h3>Fund the operating model</h3>
+                <p>Budget for product ownership, platform engineering, consumer onboarding, release automation, and governance capacity, not only proxy conversion.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Recommended pace:</b> prove one product, refine the factory, then increase wave parallelism only when controls are stable</span>
+          <span>Execution model</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Leadership Decisions">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Executive Recommendations</p>
+            <h2>Lock six decisions before scaling the migration.</h2>
+          </div>
+          <div class="slide-number">10 / 10</div>
+        </header>
+        <div class="body decision-layout">
+          <div class="decision-board">
+            <div class="decision-band">
+              <b>Decide now</b>
+              <span>Confirm product-led migration, target architecture, ownership model, funding, and the first product wave.</span>
+            </div>
+            <div class="decision-band">
+              <b>Control every wave</b>
+              <span>Use exit gates for security, Ping, certificates, CI/CD, portal onboarding, observability, rollback, and Akana retirement.</span>
+            </div>
+            <div class="decision-band">
+              <b>Measure what matters</b>
+              <span>Track retired Akana traffic, onboarded consumers, automated releases, open exceptions, operational incidents, and platform reuse.</span>
+            </div>
+          </div>
+          <div class="gate-grid" aria-label="Leadership decision gates">
+            <div class="gate">
+              <h3>1. Product taxonomy</h3>
+              <p>Approve a business-use taxonomy and reject technical lift-and-shift groupings unless an explicit exception is granted.</p>
+            </div>
+            <div class="gate">
+              <h3>2. First-wave scope</h3>
+              <p>Choose one bounded product with known consumers, visible value, manageable policy complexity, and a credible rollback path.</p>
+            </div>
+            <div class="gate">
+              <h3>3. Platform guardrails</h3>
+              <p>Mandate standard templates for Ping auth, mTLS, quotas, threat protection, logging, error contracts, and environment promotion.</p>
+            </div>
+            <div class="gate">
+              <h3>4. Consumer migration</h3>
+              <p>Treat app onboarding as part of migration scope: app records, credentials, subscriptions, portal docs, support, and communications.</p>
+            </div>
+            <div class="gate">
+              <h3>5. Retirement discipline</h3>
+              <p>Make Akana route retirement a formal completion metric, with certificate revocation and config archival included in done.</p>
+            </div>
+            <div class="gate">
+              <h3>6. Exception budget</h3>
+              <p>Limit exceptions by wave, assign owners and expiry dates, and review unresolved exceptions at the executive checkpoint.</p>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Final recommendation:</b> do not migrate the gateway; migrate the API operating model and retire Akana product by product</span>
           <span>End of deck</span>
         </footer>
       </article>
@@ -1385,7 +1685,7 @@
       <button id="prev" type="button" aria-label="Previous slide">Previous</button>
       <div>
         <div class="progress" aria-hidden="true"><span id="progress"></span></div>
-        <div class="nav-meta" id="navMeta">Slide 1 of 8 - Executive Answer</div>
+        <div class="nav-meta" id="navMeta">Slide 1 of 10 - Executive Answer</div>
       </div>
       <button id="next" type="button" aria-label="Next slide">Next</button>
     </nav>
@@ -1415,8 +1715,14 @@
         }
       }
 
+      function showSlideFromHash() {
+        const hashMatch = window.location.hash.match(/slide-(\d+)/);
+        showSlide(hashMatch ? Number(hashMatch[1]) - 1 : 0);
+      }
+
       prev.addEventListener("click", () => showSlide(current - 1));
       next.addEventListener("click", () => showSlide(current + 1));
+      window.addEventListener("hashchange", showSlideFromHash);
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
@@ -1435,8 +1741,7 @@
         }
       });
 
-      const hashMatch = window.location.hash.match(/slide-(\d+)/);
-      showSlide(hashMatch ? Number(hashMatch[1]) - 1 : 0);
+      showSlideFromHash();
     })();
   </script>
 </body>
