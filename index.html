@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Akana to Apigee X Migration Strategy</title>
+  <style>
+    :root {
+      --navy: #0a2540;
+      --blue: #0073ce;
+      --cyan: #00a3e0;
+      --teal: #00a6a6;
+      --green: #2e7d32;
+      --amber: #f5a623;
+      --coral: #d94f45;
+      --ink: #14213d;
+      --muted: #526477;
+      --line: #d7e2ea;
+      --soft: #f3f8fb;
+      --panel: #ffffff;
+      --paper: #f7fbfd;
+      --shadow: 0 18px 48px rgba(10, 37, 64, 0.16);
+      --slide-w: 1440px;
+      --slide-h: 810px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #eaf5fb 0%, #f7fbfd 42%, #eef6fa 100%);
+      letter-spacing: 0;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .deck-shell {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      height: 100vh;
+    }
+
+    .slide-stage {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      padding: 22px;
+    }
+
+    .slide {
+      position: relative;
+      display: none;
+      width: min(var(--slide-w), calc(100vw - 44px));
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 104px);
+      padding: 46px 56px 42px;
+      background: var(--panel);
+      border: 1px solid rgba(0, 115, 206, 0.14);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-top: 8px solid var(--blue);
+      pointer-events: none;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 9px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--teal), var(--amber));
+      pointer-events: none;
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+    }
+
+    .slide-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      z-index: 1;
+    }
+
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      color: var(--navy);
+      font-size: clamp(34px, 4.2vw, 64px);
+      line-height: 1.02;
+      font-weight: 800;
+    }
+
+    h2 {
+      max-width: 1040px;
+      color: var(--navy);
+      font-size: clamp(26px, 3vw, 42px);
+      line-height: 1.08;
+      font-weight: 800;
+    }
+
+    h3 {
+      color: var(--navy);
+      font-size: 20px;
+      line-height: 1.15;
+      font-weight: 800;
+    }
+
+    .slide-number {
+      display: inline-grid;
+      place-items: center;
+      min-width: 52px;
+      height: 52px;
+      padding: 0 14px;
+      color: var(--blue);
+      border: 2px solid var(--cyan);
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .body {
+      min-height: 0;
+      z-index: 1;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      z-index: 1;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer b {
+      color: var(--navy);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 28px;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      padding: 20px;
+    }
+
+    .white-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .answer {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 26px;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    .answer-card {
+      display: grid;
+      align-content: center;
+      gap: 22px;
+      padding: 28px;
+      background: linear-gradient(135deg, var(--navy), #0d4976 52%, #0073ce);
+      color: #fff;
+    }
+
+    .answer-card h2,
+    .answer-card h3 {
+      color: #fff;
+    }
+
+    .answer-card p {
+      max-width: 860px;
+      color: #dceff8;
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .recommendation-list {
+      display: grid;
+      gap: 13px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .recommendation-list li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      color: #eaf7fc;
+      font-size: 18px;
+      line-height: 1.32;
+    }
+
+    .tick {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: #003b63;
+      background: #9be8ff;
+      font-weight: 900;
+    }
+
+    .metric-stack {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .metric {
+      display: grid;
+      align-content: center;
+      gap: 6px;
+      padding: 20px;
+      background: #fff;
+      border-left: 8px solid var(--cyan);
+      box-shadow: 0 10px 30px rgba(10, 37, 64, 0.08);
+    }
+
+    .metric strong {
+      color: var(--navy);
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .pyramid {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      height: 100%;
+    }
+
+    .pyramid-row {
+      display: grid;
+      margin-inline: auto;
+      padding: 16px 22px;
+      color: #fff;
+      text-align: center;
+      min-height: 78px;
+      align-content: center;
+      box-shadow: 0 8px 26px rgba(10, 37, 64, 0.12);
+    }
+
+    .pyramid-row b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .pyramid-row span {
+      font-size: 14px;
+      line-height: 1.3;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .p1 {
+      width: 50%;
+      background: var(--navy);
+    }
+
+    .p2 {
+      width: 66%;
+      background: var(--blue);
+    }
+
+    .p3 {
+      width: 82%;
+      background: var(--teal);
+    }
+
+    .p4 {
+      width: 98%;
+      background: #4d7c92;
+    }
+
+    .scqa {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      height: 100%;
+      align-content: center;
+    }
+
+    .scqa .box {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-height: 420px;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-top: 7px solid var(--blue);
+    }
+
+    .box:nth-child(2) {
+      border-top-color: var(--coral);
+    }
+
+    .box:nth-child(3) {
+      border-top-color: var(--amber);
+    }
+
+    .box:nth-child(4) {
+      border-top-color: var(--green);
+    }
+
+    .box p,
+    .panel p,
+    .white-panel p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.42;
+    }
+
+    .tag {
+      display: inline-block;
+      width: fit-content;
+      padding: 5px 9px;
+      color: var(--navy);
+      background: #dff4fb;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr 1fr;
+      gap: 18px;
+      height: 100%;
+      align-items: stretch;
+    }
+
+    .lane {
+      display: grid;
+      align-content: center;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .lane-title {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .node {
+      padding: 14px 15px;
+      border: 1px solid #b9d1df;
+      background: var(--soft);
+      color: var(--navy);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .node small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .node.dark {
+      color: #fff;
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .node.blue {
+      color: #fff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .arrow {
+      color: var(--blue);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .factory {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      min-height: 290px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-top: 8px solid var(--blue);
+    }
+
+    .step:nth-child(2) { border-top-color: #178bc3; }
+    .step:nth-child(3) { border-top-color: var(--teal); }
+    .step:nth-child(4) { border-top-color: var(--green); }
+    .step:nth-child(5) { border-top-color: var(--amber); }
+    .step:nth-child(6) { border-top-color: #8a6fb2; }
+    .step:nth-child(7) { border-top-color: var(--coral); }
+
+    .step-num {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .step h3 {
+      font-size: 17px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .mini-note {
+      margin-top: 16px;
+      padding: 14px 18px;
+      color: var(--navy);
+      background: #edf8fc;
+      border-left: 6px solid var(--cyan);
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .taxonomy {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 22px;
+      height: 100%;
+    }
+
+    .layered {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .layer {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .layer b {
+      color: var(--navy);
+      font-size: 16px;
+    }
+
+    .layer span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .maturity-chart {
+      display: grid;
+      gap: 14px;
+      align-content: center;
+      padding: 18px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 44px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bar-row label {
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .track {
+      height: 20px;
+      background: #dbe9f0;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+    }
+
+    .bar.low {
+      background: linear-gradient(90deg, var(--coral), var(--amber));
+    }
+
+    .bar-row output {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      height: 100%;
+      align-content: stretch;
+    }
+
+    .control-card {
+      display: grid;
+      gap: 13px;
+      align-content: start;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-top: 7px solid var(--blue);
+    }
+
+    .control-card:nth-child(2) { border-top-color: var(--teal); }
+    .control-card:nth-child(3) { border-top-color: var(--amber); }
+    .control-card:nth-child(4) { border-top-color: var(--green); }
+    .control-card:nth-child(5) { border-top-color: #8a6fb2; }
+    .control-card:nth-child(6) { border-top-color: var(--coral); }
+
+    .control-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.38;
+    }
+
+    .decision {
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      height: 100%;
+    }
+
+    .impact-bars {
+      display: grid;
+      gap: 18px;
+      align-content: center;
+      padding: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .impact-row {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .impact-row b {
+      color: var(--navy);
+      font-size: 15px;
+    }
+
+    .impact-line {
+      position: relative;
+      height: 34px;
+      background: #e2edf3;
+    }
+
+    .impact-line span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      display: grid;
+      align-items: center;
+      padding-left: 12px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .risk-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 18px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .risk-cell {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      padding: 16px;
+      background: #fff;
+      min-height: 150px;
+    }
+
+    .risk-cell b {
+      color: var(--navy);
+      font-size: 16px;
+    }
+
+    .risk-cell span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .risk-cell.hot {
+      border-top: 7px solid var(--coral);
+    }
+
+    .risk-cell.watch {
+      border-top: 7px solid var(--amber);
+    }
+
+    .risk-cell.manage {
+      border-top: 7px solid var(--blue);
+    }
+
+    .risk-cell.low {
+      border-top: 7px solid var(--green);
+    }
+
+    .pitfalls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      height: 100%;
+    }
+
+    .pitfall-table {
+      display: grid;
+      grid-template-rows: auto repeat(5, 1fr);
+      border: 1px solid var(--line);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      min-height: 56px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table-row:last-child {
+      border-bottom: 0;
+    }
+
+    .table-row.header {
+      color: #fff;
+      background: var(--navy);
+      min-height: 42px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 12px;
+    }
+
+    .table-row div {
+      padding: 12px 14px;
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .table-row div:last-child {
+      border-right: 0;
+    }
+
+    .table-row strong {
+      color: var(--navy);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .closeout {
+      display: grid;
+      align-content: center;
+      gap: 20px;
+      padding: 28px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--navy), #005a99 60%, #008fc5);
+    }
+
+    .closeout h3 {
+      color: #fff;
+      font-size: 28px;
+    }
+
+    .closeout p {
+      color: #e8f6fb;
+      font-size: 17px;
+      line-height: 1.42;
+    }
+
+    .nav {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 18px;
+      padding: 12px 22px 18px;
+      background: rgba(247, 251, 253, 0.94);
+      border-top: 1px solid rgba(10, 37, 64, 0.1);
+    }
+
+    .nav button {
+      min-width: 112px;
+      height: 42px;
+      border: 0;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .nav button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .progress {
+      height: 10px;
+      background: #d6e6ef;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      width: 12.5%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--teal));
+      transition: width 180ms ease;
+    }
+
+    .nav-meta {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    @media (max-width: 1000px) {
+      html,
+      body {
+        overflow: auto;
+        overflow-x: hidden;
+      }
+
+      .deck-shell {
+        height: auto;
+        min-height: 100vh;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .slide-stage {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        padding: 12px;
+        overflow-x: hidden;
+      }
+
+      .slide {
+        width: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+        min-height: calc(100vh - 92px);
+        padding: 34px 24px;
+      }
+
+      .grid-2,
+      .answer,
+      .architecture,
+      .taxonomy,
+      .value-grid,
+      .pitfalls {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3,
+      .controls,
+      .scqa,
+      .factory {
+        grid-template-columns: 1fr;
+      }
+
+      .scqa .box,
+      .step {
+        min-height: auto;
+      }
+
+      .metric-stack {
+        grid-template-rows: none;
+      }
+
+      .slide.active {
+        gap: 18px;
+      }
+
+      .nav {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        padding-inline: 12px;
+        overflow-x: hidden;
+      }
+
+      .nav button {
+        min-width: 84px;
+        padding-inline: 10px;
+      }
+
+      .slide-header {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      @page {
+        size: 16in 9in;
+        margin: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: auto;
+        background: #fff;
+        overflow: visible;
+      }
+
+      .deck-shell,
+      .slide-stage {
+        display: block;
+        height: auto;
+        padding: 0;
+      }
+
+      .slide,
+      .slide.active {
+        display: grid !important;
+        width: 16in;
+        height: 9in;
+        max-height: none;
+        aspect-ratio: auto;
+        margin: 0;
+        padding: 0.52in 0.62in 0.48in;
+        box-shadow: none;
+        border: 0;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .slide-number {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck-shell" aria-label="Akana to Apigee X migration presentation">
+    <section class="slide-stage">
+      <article class="slide active" data-title="Executive Answer">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Akana to Apigee X Migration Strategy</p>
+            <h1>Migrate by business-use product, not by API inventory.</h1>
+          </div>
+          <div class="slide-number">01 / 08</div>
+        </header>
+        <div class="body answer">
+          <div class="answer-card">
+            <h2>Executive answer</h2>
+            <p>Use Apigee X as the new governed API operating model, and move one business usage grouping at a time through a repeatable migration factory. Keep Akana live only as a controlled coexistence path through the external load balancer.</p>
+            <ul class="recommendation-list">
+              <li><span class="tick">1</span><span>Define every migration unit as an Apigee Product aligned to a use case, consumer group, SLA, identity pattern, and lifecycle owner.</span></li>
+              <li><span class="tick">2</span><span>Stand up core platform controls once: Ping integration, cert patterns, CI/CD, policy templates, product taxonomy, and onboarding gates.</span></li>
+              <li><span class="tick">3</span><span>Run each product through discover, design, build, prove, onboard, cutover, and retire, with clear exit criteria before the next product starts.</span></li>
+            </ul>
+          </div>
+          <div class="metric-stack">
+            <div class="metric">
+              <strong>1</strong>
+              <span>Apigee Product at a time, grouped by business usage and consumer impact.</span>
+            </div>
+            <div class="metric">
+              <strong>7</strong>
+              <span>Repeatable stages from discovery to Akana retirement for each product.</span>
+            </div>
+            <div class="metric">
+              <strong>0</strong>
+              <span>New bespoke gateway patterns unless approved by architecture governance.</span>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Purpose:</b> executive and architecture alignment</span>
+          <span>Self-contained HTML deck | printable</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Minto Storyline">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Strict Minto Pyramid + SQCA</p>
+            <h2>The storyline: fix the operating model first, then migrate traffic safely.</h2>
+          </div>
+          <div class="slide-number">02 / 08</div>
+        </header>
+        <div class="body grid-2">
+          <div class="pyramid" aria-label="Minto pyramid">
+            <div class="pyramid-row p1">
+              <b>Answer</b>
+              <span>Product-led Apigee X migration with governed coexistence.</span>
+            </div>
+            <div class="pyramid-row p2">
+              <b>Why it works</b>
+              <span>It limits blast radius, creates reusable patterns, and forces taxonomy cleanup.</span>
+            </div>
+            <div class="pyramid-row p3">
+              <b>How to execute</b>
+              <span>Platform foundation, product factory, consumer onboarding, controlled cutover.</span>
+            </div>
+            <div class="pyramid-row p4">
+              <b>Controls</b>
+              <span>Architecture guardrails, automated deployment, Ping identity, cert lifecycle, observability, and decommission gates.</span>
+            </div>
+          </div>
+          <div class="scqa">
+            <div class="box">
+              <span class="tag">Situation</span>
+              <h3>Akana runs critical APIs.</h3>
+              <p>The current gateway estate supports business capabilities, but the implementation has grown around delivery pressure rather than deliberate platform design.</p>
+            </div>
+            <div class="box">
+              <span class="tag">Complication</span>
+              <h3>The design debt is structural.</h3>
+              <p>Poor product taxonomy, inconsistent gateway patterns, tight coupling, manual deployments, and weak governance make a bulk migration risky.</p>
+            </div>
+            <div class="box">
+              <span class="tag">Question</span>
+              <h3>How do we migrate without moving the mess?</h3>
+              <p>Move the business capability, consumers, policies, certificates, and onboarding model together, rather than translating individual proxies.</p>
+            </div>
+            <div class="box">
+              <span class="tag">Answer</span>
+              <h3>Use product waves.</h3>
+              <p>Each Apigee Product becomes a governed migration unit with explicit consumers, identity model, SLAs, traffic path, ownership, and retirement criteria.</p>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Decision required:</b> endorse product-led migration as the default unit of change</span>
+          <span>MECE lens: platform, product, consumer, operations, risk</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Target Architecture">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Target-State Architecture</p>
+            <h2>Apigee X becomes the governed API front door on GCP; Akana remains only for controlled coexistence.</h2>
+          </div>
+          <div class="slide-number">03 / 08</div>
+        </header>
+        <div class="body architecture">
+          <div class="lane">
+            <div class="lane-title">Consumers</div>
+            <div class="node">Internal Apps<small>Enterprise and channel systems</small></div>
+            <div class="node">Partner Apps<small>Portal onboarding and app credentials</small></div>
+            <div class="node">Digital Channels<small>Mobile, web, assisted journeys</small></div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Controlled Entry</div>
+            <div class="node dark">External Load Balancer<small>Routes by product wave; supports rollback during coexistence</small></div>
+            <div class="arrow">downstream routing by migrated product</div>
+            <div class="grid-2" style="gap:12px;">
+              <div class="node blue">Apigee X on GCP<small>Product model, proxies, policies, analytics, runtime governance</small></div>
+              <div class="node">Akana Legacy<small>Only products not yet migrated</small></div>
+            </div>
+            <div class="node">Shared VPC<small>Centralized network controls, routing, firewall boundaries</small></div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Enterprise Services</div>
+            <div class="node">Ping Identity<small>OAuth/OIDC, token validation, claims model</small></div>
+            <div class="node">Certificates & Trust<small>mTLS, keystores, cert rotation, chain governance</small></div>
+            <div class="node">CI/CD Pipeline<small>Template-based deployments and environment promotion</small></div>
+            <div class="node">Backends<small>Business services with explicit contracts</small></div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Architecture principle:</b> one sanctioned traffic path per product, with rollback defined before cutover</span>
+          <span>Runtime, onboarding, CI/CD, certs, and identity included</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Product Migration Factory">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Implementation Approach</p>
+            <h2>Run a repeatable migration factory for each Apigee Product.</h2>
+          </div>
+          <div class="slide-number">04 / 08</div>
+        </header>
+        <div class="body">
+          <div class="factory">
+            <div class="step">
+              <div class="step-num">01</div>
+              <h3>Discover</h3>
+              <p>Map Akana APIs, consumers, apps, certificates, policies, traffic, SLAs, incidents, and manual release steps for the product use case.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">02</div>
+              <h3>Design</h3>
+              <p>Define Apigee Product, proxy boundaries, quota model, Ping token pattern, cert model, error contract, analytics tags, and ownership.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">03</div>
+              <h3>Build</h3>
+              <p>Implement proxies using approved templates: auth, threat protection, mediation, routing, logging, response handling, and reusable policies.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">04</div>
+              <h3>Prove</h3>
+              <p>Run contract, security, performance, certificate, Ping, rollback, observability, and consumer regression validation before onboarding.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">05</div>
+              <h3>Onboard</h3>
+              <p>Create developer portal product, apps, credentials, subscriptions, and runbook-backed support path for each consumer group.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">06</div>
+              <h3>Cutover</h3>
+              <p>Shift external load balancer routing by product, monitor agreed service signals, and keep rollback window time-bound.</p>
+            </div>
+            <div class="step">
+              <div class="step-num">07</div>
+              <h3>Retire</h3>
+              <p>Remove Akana routes, decommission credentials, revoke unused certs, archive configs, and update product inventory.</p>
+            </div>
+          </div>
+          <div class="mini-note"><b>Recommendation:</b> the first product should be meaningful but bounded: enough consumers and policies to prove the platform pattern, not the highest-risk business flow.</div>
+        </div>
+        <footer class="footer">
+          <span><b>Exit rule:</b> no product proceeds without owner, consumers, SLA, identity, certs, test evidence, and rollback path</span>
+          <span>Factory creates speed through repetition</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Product Model">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Product Taxonomy + Onboarding</p>
+            <h2>Replace technical grouping with business usage grouping.</h2>
+          </div>
+          <div class="slide-number">05 / 08</div>
+        </header>
+        <div class="body taxonomy">
+          <div class="layered">
+            <div class="layer">
+              <b>Business Product</b>
+              <span>Example: Customer Profile Access, Account Status, Payment Initiation. Named by use case and consumer intent.</span>
+            </div>
+            <div class="layer">
+              <b>Consumer Segment</b>
+              <span>Internal, partner, digital channel, operations. Determines onboarding, credentials, SLAs, and support model.</span>
+            </div>
+            <div class="layer">
+              <b>API Proxies</b>
+              <span>Grouped only where they share lifecycle, security, quota, ownership, and consumer value.</span>
+            </div>
+            <div class="layer">
+              <b>Policy Pattern</b>
+              <span>Approved combinations for OAuth/OIDC with Ping, mTLS, quota, spike arrest, threat protection, transformation, and logging.</span>
+            </div>
+            <div class="layer">
+              <b>Portal Contract</b>
+              <span>Documentation, app registration, subscription approval, credential issuance, contact route, and change notices.</span>
+            </div>
+          </div>
+          <div class="maturity-chart">
+            <h3>Expected operating model shift</h3>
+            <div class="bar-row">
+              <label>Product taxonomy</label>
+              <div class="track"><div class="bar low" style="width: 28%;"></div></div>
+              <output>Now</output>
+            </div>
+            <div class="bar-row">
+              <label></label>
+              <div class="track"><div class="bar" style="width: 86%;"></div></div>
+              <output>Target</output>
+            </div>
+            <div class="bar-row">
+              <label>Deployment control</label>
+              <div class="track"><div class="bar low" style="width: 34%;"></div></div>
+              <output>Now</output>
+            </div>
+            <div class="bar-row">
+              <label></label>
+              <div class="track"><div class="bar" style="width: 90%;"></div></div>
+              <output>Target</output>
+            </div>
+            <div class="bar-row">
+              <label>Consumer clarity</label>
+              <div class="track"><div class="bar low" style="width: 31%;"></div></div>
+              <output>Now</output>
+            </div>
+            <div class="bar-row">
+              <label></label>
+              <div class="track"><div class="bar" style="width: 82%;"></div></div>
+              <output>Target</output>
+            </div>
+            <div class="panel">
+              <p><b>Governance move:</b> every product gets a product owner, technical owner, consumer owner, data classification, identity pattern, quota policy, cert owner, and retirement date for its Akana equivalent.</p>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>MECE product model:</b> business capability, consumer group, security posture, lifecycle, operational ownership</span>
+          <span>Avoid copying Akana taxonomy into Apigee</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Platform Controls">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Foundation Controls</p>
+            <h2>Build six non-negotiable controls before scaling beyond the first product.</h2>
+          </div>
+          <div class="slide-number">06 / 08</div>
+        </header>
+        <div class="body controls">
+          <div class="control-card">
+            <span class="decision">Identity</span>
+            <h3>Ping integration standard</h3>
+            <p>Use a defined OAuth/OIDC pattern: issuer validation, audience, claims, scopes, token lifetime, introspection or JWT validation, and service identity expectations.</p>
+          </div>
+          <div class="control-card">
+            <span class="decision">Certificates</span>
+            <h3>Trust lifecycle</h3>
+            <p>Document mTLS usage, keystore/truststore ownership, rotation calendar, chain validation, break-glass process, and certificate retirement on Akana decommission.</p>
+          </div>
+          <div class="control-card">
+            <span class="decision">CI/CD</span>
+            <h3>Template-based promotion</h3>
+            <p>Promote config and proxy bundles through environments using automated checks, parameterized config, policy linting, and approval gates for risk-sensitive changes.</p>
+          </div>
+          <div class="control-card">
+            <span class="decision">Runtime</span>
+            <h3>Policy catalog</h3>
+            <p>Create sanctioned recipes for auth, quota, spike arrest, threat protection, mediation, target routing, error mapping, logging, and analytics dimensions.</p>
+          </div>
+          <div class="control-card">
+            <span class="decision">Portal</span>
+            <h3>Consumer onboarding</h3>
+            <p>Use developer portal product pages, app registration, approval workflow, credential issuance, subscription visibility, and product-specific support path.</p>
+          </div>
+          <div class="control-card">
+            <span class="decision">Governance</span>
+            <h3>Architecture board</h3>
+            <p>Approve exceptions, avoid pattern drift, track technical debt, validate readiness evidence, and enforce Akana retirement after each product cutover.</p>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Recommendation:</b> scale only when the foundation is real enough to stop bespoke implementations</span>
+          <span>Controls are practical gates, not governance theatre</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Value Tracking">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Data Visualization</p>
+            <h2>Track migration success by outcomes, not proxy count.</h2>
+          </div>
+          <div class="slide-number">07 / 08</div>
+        </header>
+        <div class="body value-grid">
+          <div class="impact-bars">
+            <h3>Primary migration scorecard per product</h3>
+            <div class="impact-row">
+              <b>Manual release effort</b>
+              <div class="impact-line"><span style="width: 82%; background: var(--coral);">reduce materially</span></div>
+            </div>
+            <div class="impact-row">
+              <b>Policy reuse</b>
+              <div class="impact-line"><span style="width: 74%; background: var(--blue);">increase</span></div>
+            </div>
+            <div class="impact-row">
+              <b>Consumer clarity</b>
+              <div class="impact-line"><span style="width: 70%; background: var(--teal);">increase</span></div>
+            </div>
+            <div class="impact-row">
+              <b>Rollback confidence</b>
+              <div class="impact-line"><span style="width: 66%; background: var(--green);">increase</span></div>
+            </div>
+            <div class="impact-row">
+              <b>Akana dependency</b>
+              <div class="impact-line"><span style="width: 88%; background: #6d7891;">retire by wave</span></div>
+            </div>
+            <div class="panel">
+              <p><b>Do not measure success as number of migrated endpoints.</b> Measure product readiness, consumer adoption, deployment automation, observability, incident reduction, and Akana route retirement.</p>
+            </div>
+          </div>
+          <div class="risk-matrix" aria-label="Migration risk matrix">
+            <div class="risk-cell hot">
+              <b>High impact / high likelihood</b>
+              <span>Poor taxonomy copied into Apigee; shared policies mutate per team; Ping scope model unclear; undocumented consumers fail at cutover.</span>
+            </div>
+            <div class="risk-cell watch">
+              <b>High impact / lower likelihood</b>
+              <span>Certificate chain mismatch, load balancer route leakage, backend allowlist gaps, non-functional limits discovered late.</span>
+            </div>
+            <div class="risk-cell manage">
+              <b>Lower impact / high likelihood</b>
+              <span>Portal content lag, app naming drift, inconsistent analytics tags, manual exception tracking.</span>
+            </div>
+            <div class="risk-cell low">
+              <b>Lower impact / lower likelihood</b>
+              <span>Cosmetic portal issues, documentation polish, non-critical dashboard refinements.</span>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Executive dashboard:</b> migrated products, onboarded apps, retired Akana routes, release automation, open exceptions</span>
+          <span>Outcome-led governance</span>
+        </footer>
+      </article>
+
+      <article class="slide" data-title="Pitfalls and Prevention">
+        <header class="slide-header">
+          <div>
+            <p class="kicker">Challenges, Pitfalls, and Prevention</p>
+            <h2>Most migration failures come from unmanaged coupling, not Apigee technology.</h2>
+          </div>
+          <div class="slide-number">08 / 08</div>
+        </header>
+        <div class="body pitfalls">
+          <div class="pitfall-table">
+            <div class="table-row header">
+              <div>Issue one might face</div>
+              <div>Prevention recommendation</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Bad Akana taxonomy gets recreated.</strong> Teams lift and shift proxy groupings.</div>
+              <div>Require product design approval based on business use case, consumer segment, SLA, owner, and lifecycle before any build starts.</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Consumers are discovered late.</strong> Hidden apps depend on legacy routes or certificates.</div>
+              <div>Use Akana logs, LB logs, cert inventory, app registry, and support data to build a consumer evidence pack per product.</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Identity scope drift.</strong> Ping claims and Apigee policies are interpreted differently per team.</div>
+              <div>Create a Ping-to-Apigee auth contract: issuers, audiences, scopes, claims, token handling, and rejected-token behavior.</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Manual deployment habits continue.</strong> Apigee becomes another manually changed runtime.</div>
+              <div>Make CI/CD the only standard path. Exceptions require time-bound architecture approval and post-change reconciliation.</div>
+            </div>
+            <div class="table-row">
+              <div><strong>Coexistence becomes permanent.</strong> Akana routes stay open after cutover.</div>
+              <div>Define decommission gates up front: traffic zero, consumers moved, certs revoked, route removed, config archived, ownership closed.</div>
+            </div>
+          </div>
+          <div class="closeout">
+            <h3>Recommended governance cadence</h3>
+            <p><b>Weekly product wave review:</b> readiness, open decisions, risk burn-down, consumer onboarding, and route retirement.</p>
+            <p><b>Fortnightly architecture board:</b> exceptions, new patterns, policy catalog, Ping model, cert model, and cross-product dependencies.</p>
+            <p><b>Monthly executive checkpoint:</b> migrated business capability, Akana dependency retired, operational risk reduced, and next product approved.</p>
+            <p><b>Final rule:</b> every migration must leave the platform simpler than it found it.</p>
+          </div>
+        </div>
+        <footer class="footer">
+          <span><b>Last recommendation:</b> protect product taxonomy, automation, identity, and retirement discipline from day one</span>
+          <span>End of deck</span>
+        </footer>
+      </article>
+    </section>
+
+    <nav class="nav" aria-label="Slide navigation">
+      <button id="prev" type="button" aria-label="Previous slide">Previous</button>
+      <div>
+        <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+        <div class="nav-meta" id="navMeta">Slide 1 of 8 - Executive Answer</div>
+      </div>
+      <button id="next" type="button" aria-label="Next slide">Next</button>
+    </nav>
+  </main>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const prev = document.getElementById("prev");
+      const next = document.getElementById("next");
+      const progress = document.getElementById("progress");
+      const navMeta = document.getElementById("navMeta");
+      let current = 0;
+
+      function showSlide(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1));
+        slides.forEach((slide, slideIndex) => {
+          slide.classList.toggle("active", slideIndex === current);
+        });
+        prev.disabled = current === 0;
+        next.disabled = current === slides.length - 1;
+        progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+        navMeta.textContent = `Slide ${current + 1} of ${slides.length} - ${slides[current].dataset.title}`;
+        window.location.hash = `slide-${current + 1}`;
+        if (typeof window.scrollTo === "function") {
+          window.scrollTo({ left: 0 });
+        }
+      }
+
+      prev.addEventListener("click", () => showSlide(current - 1));
+      next.addEventListener("click", () => showSlide(current + 1));
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+          event.preventDefault();
+          showSlide(current + 1);
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          event.preventDefault();
+          showSlide(current - 1);
+        }
+        if (event.key === "Home") {
+          showSlide(0);
+        }
+        if (event.key === "End") {
+          showSlide(slides.length - 1);
+        }
+      });
+
+      const hashMatch = window.location.hash.match(/slide-(\d+)/);
+      showSlide(hashMatch ? Number(hashMatch[1]) - 1 : 0);
+    })();
+  </script>
+</body>
+</html>
