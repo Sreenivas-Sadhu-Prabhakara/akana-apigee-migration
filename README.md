@@ -56,5 +56,5 @@ Recommended GitHub Pages settings:
 6. Platform controls
 7. Outcome-based scorecard
 8. Challenges, pitfalls, and prevention
-9. Recommended execution model
-10. Leadership decisions and migration gates
+9. Concrete Apigee X solution blueprint
+10. Per-product implementation runbook
