@@ -57,4 +57,5 @@ Recommended GitHub Pages settings:
 7. Outcome-based scorecard
 8. Challenges, pitfalls, and prevention
 9. Concrete Apigee X solution blueprint
-10. Per-product implementation runbook
+10. Multi-consumer API strategy
+11. Per-product implementation runbook
